@@ -2,7 +2,8 @@ const mongoose = require('mongoose');
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
-const fs = require('fs').promises;
+const axios = require('axios');
+
 
 const app = express();
 const PORT = process.env.PORT || 7000;
@@ -36,6 +37,9 @@ app.get('/reports', async (req, res) => {
       folder: folderPath,
       files: files,
     };
+    console.log('folderPath:', folderPath);
+console.log('filename:', filename);
+
     res.json(folderContents);
   } catch (error) {
     console.error('Error reading folder:', error);
@@ -44,35 +48,32 @@ app.get('/reports', async (req, res) => {
 });
 
 
+// Define your URLs with the fallback to localhost:7000
+const baseUrl = process.env.REACT_APP_BASE_URL || 'http://localhost:7000';
+
+// Create a route to serve PDF files by URL
 app.get('/reports/:filename', async (req, res) => {
-  const folderPath = path.join(__dirname, 'reports');
-  const filename = req.params.filename;
+  const { filename } = req.params;
+  const pdfUrl = `${baseUrl}/reports/${filename}`;
 
-  if (filename.endsWith('.pdf')) {
-    const filePath = path.join(folderPath, filename);
+  try {
+    // Use 'axios' to fetch the PDF file from the URL
+    const response = await axios.get(pdfUrl, { responseType: 'arraybuffer' });
 
-    try {
-      // Use fs.promises.createReadStream for Promise-based file reading
-      const fileStream = await fs.promises.createReadStream(filePath);
-
-      // Set the response headers for PDF file
-      res.setHeader('Content-Type', 'application/pdf');
-      res.setHeader('Content-Disposition', `inline; filename=${filename}`);
-
-      // Pipe the file stream to the response
-      fileStream.pipe(res);
-      console.log(fs.promises);
-    } catch (error) {
-      console.error('Error sending PDF file:', error);
-      res.status(500).json({ error: 'Internal Server Error' });
-    }
-  } else {
-    res.status(400).json({ error: 'Not a PDF file' });
+    // Set the response headers for PDF file
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', `inline; filename=${filename}`);
+    res.send(response.data); // Send the PDF content as the response
+  } catch (error) {
+    console.error('Error fetching PDF:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
   }
 });
 
-// ... (rest of your code)
+ 
      
+
+
 
 
 mongoose.connect('mongodb+srv://sallywanga2016:Mugisha77@cluster0.2atceva.mongodb.net/atlasTeaBrokersLimited', {
