@@ -1,8 +1,8 @@
 const mongoose = require('mongoose');
 const express = require('express');
 const cors = require('cors');
-const bodyParser = require('body-parser');
-const path = require('path'); // Import the path module
+const path = require('path');
+const fs = require('fs').promises;
 
 const app = express();
 const PORT = process.env.PORT || 7000;
@@ -15,19 +15,10 @@ app.get('/test', (req, res) => {
   res.send('This is a test route');
 });
 
-
 app.use(cors());
-app.use(bodyParser.json());
+app.use(express.json());
 
-// Serve static PDF files from the "reports" folder with proper content type
-app.use('/reports', (req, res, next) => {
-  // Set the Content-Type header to indicate that the response is a PDF
-  res.setHeader('Content-Type', 'application/pdf');
-  console.log('Request received for PDF:', req.url); // Add this line for debugging
-  next();
-}, express.static(path.join(__dirname, 'reports')));
-
-
+// Serve static Excel files
 app.use('/excel', (req, res, next) => {
   console.log('Request received for excel:', req.url);
   // Set the Content-Type header to indicate that the response is an Excel file
@@ -35,6 +26,44 @@ app.use('/excel', (req, res, next) => {
   next();
 }, express.static(path.join(__dirname, 'excel')));
 
+// Serve individual PDF files from the "reports" folder
+app.get('/reports/:fileName', (req, res) => {
+  const fileName = req.params.fileName;
+  const filePath = path.join(__dirname, 'reports', fileName);
+
+  // Set the Content-Type header to indicate that the response is a PDF
+  res.setHeader('Content-Type', 'application/pdf');
+
+  // Set the Content-Disposition header with the dynamic filename
+  res.setHeader('Content-Disposition', `attachment; filename="${fileName}"`);
+
+  // Serve the file
+  fs.readFile(filePath, (err, data) => {
+    if (err) {
+      console.error('Error reading file:', err);
+      res.status(404).send('File not found');
+    } else {
+      res.send(data);
+    }
+  });
+});
+
+
+// Define a route to serve the contents of a folder as a JSON object
+app.get('/reports', async (req, res) => {
+  const folderPath = path.join(__dirname, 'reports');
+  try {
+    const files = await fs.readdir(folderPath);
+    const folderContents = {
+      folder: folderPath,
+      files: files,
+    };
+    res.json(folderContents);
+  } catch (error) {
+    console.error('Error reading folder:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
 
 mongoose.connect('mongodb+srv://sallywanga2016:Mugisha77@cluster0.2atceva.mongodb.net/atlasTeaBrokersLimited', {
   useNewUrlParser: true,
