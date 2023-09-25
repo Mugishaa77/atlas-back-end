@@ -26,28 +26,6 @@ app.use('/excel', (req, res, next) => {
   next();
 }, express.static(path.join(__dirname, 'excel')));
 
-// Serve individual PDF files from the "reports" folder
-app.get('/reports/:fileName', (req, res) => {
-  const fileName = req.params.fileName;
-  const filePath = path.join(__dirname, 'reports', fileName);
-
-  // Set the Content-Type header to indicate that the response is a PDF
-  res.setHeader('Content-Type', 'application/pdf');
-
-  // Set the Content-Disposition header with the dynamic filename
-  res.setHeader('Content-Disposition', `attachment; filename="${fileName}"`);
-
-  // Serve the file
-  fs.readFile(filePath, (err, data) => {
-    if (err) {
-      console.error('Error reading file:', err);
-      res.status(404).send('File not found');
-    } else {
-      res.send(data);
-    }
-  });
-});
-
 
 // Define a route to serve the contents of a folder as a JSON object
 app.get('/reports', async (req, res) => {
@@ -64,6 +42,38 @@ app.get('/reports', async (req, res) => {
     res.status(500).json({ error: 'Internal Server Error' });
   }
 });
+
+
+app.get('/reports/:filename', async (req, res) => {
+  const folderPath = path.join(__dirname, 'reports');
+  const filename = req.params.filename;
+
+  if (filename.endsWith('.pdf')) {
+    const filePath = path.join(folderPath, filename);
+
+    try {
+      // Use fs.promises.createReadStream for Promise-based file reading
+      const fileStream = await fs.promises.createReadStream(filePath);
+
+      // Set the response headers for PDF file
+      res.setHeader('Content-Type', 'application/pdf');
+      res.setHeader('Content-Disposition', `inline; filename=${filename}`);
+
+      // Pipe the file stream to the response
+      fileStream.pipe(res);
+      console.log(fs.promises);
+    } catch (error) {
+      console.error('Error sending PDF file:', error);
+      res.status(500).json({ error: 'Internal Server Error' });
+    }
+  } else {
+    res.status(400).json({ error: 'Not a PDF file' });
+  }
+});
+
+// ... (rest of your code)
+     
+
 
 mongoose.connect('mongodb+srv://sallywanga2016:Mugisha77@cluster0.2atceva.mongodb.net/atlasTeaBrokersLimited', {
   useNewUrlParser: true,
