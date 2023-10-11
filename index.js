@@ -30,13 +30,19 @@ app.post('/email', (req, res) => {
 
   // Configure nodemailer to send emails using your email service (e.g., Outlook)
   const transporter = nodemailer.createTransport({
-    service: 'Outlook',
+    service: 'Gmail',
+    auth: {
+  user: 'atlasteabrokersltd@gmail.com', // Your Gmail email address
+  pass: 'ixle unxs lhon ftid' // Use the generated app-specific password
+}
+
+
   });
 
   // Create an email message
   const mailOptions = {
     from: form.emailAddress,
-    to: 'info@atlastea.co.ke', // Replace with the recipient's email address
+    to: 'atlasteabrokersltd@gmail.com', // Replace with the recipient's email address
     subject: form.subject,
     text: `From: ${form.fullName}\nEmail: ${form.emailAddress}\nMessage: ${form.messageItem}`
   };
