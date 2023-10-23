@@ -3,7 +3,7 @@ const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const nodemailer = require('nodemailer');
-
+const path = require('path');
 
 const app = express();
 const PORT = process.env.PORT || 7000;
@@ -56,6 +56,7 @@ app.post('/email', (req, res) => {
       console.log('Email sent:', info.response);
       res.json({ message: 'Email sent successfully' }); // Respond with JSON success message
     }
+
   });
 });
 
@@ -72,6 +73,54 @@ db.on('error', (error) => {
 db.once('open', () => {
   console.log('Connected to Mugisha-s Database');
 });
+
+const imageUrls = [
+        path.join(__dirname,'pictures', 'ARROKET TEA FACTORY.jpg'),
+        path.join(__dirname,'pictures', 'DL KOISAGAT TEA FACTORY.jpg'),
+        path.join(__dirname,'pictures', 'EASTERN PRODUCE KENYA.jpg'),
+        path.join(__dirname,'pictures', 'EMROK TEA FACTORY LTD(EPZ).jpg'),
+        path.join(__dirname,'pictures', 'GATARE TEA COMPANY LTD.jpg'),
+        path.join(__dirname,'pictures', 'Gisakura Tea Factory.jpg'),
+        path.join(__dirname,'pictures', 'JAMES FINLAY KERICHO.jpg'),
+        path.join(__dirname,'pictures', 'KAPCHORUA TEA ESTATE.jpg'),
+        path.join(__dirname,'pictures', 'KARIRANA TEA ESTATE.jpg'),
+        path.join(__dirname,'pictures', 'karongi tea factory ltd.jpg'),
+        path.join(__dirname,'pictures', 'KIBENA TEA ESTATE.jpg'),
+        path.join(__dirname,'pictures', 'KIPKEBE TEA LTD.jpg'),
+        path.join(__dirname,'pictures', 'KISARU TEA ESTATE.jpg'),
+        path.join(__dirname,'pictures', 'KITUMBE TEA FACTORY.jpg'),
+        path.join(__dirname,'pictures', 'KORARA HIGHLANDS TEA FACTORY.jpg'),
+        path.join(__dirname,'pictures', 'MARAMBA TEA FACTORY.jpg'),
+        path.join(__dirname,'pictures', 'MATA TEA COMPANY LTD.jpg'),
+        path.join(__dirname,'pictures', 'MOGENI TEA FACTORY.jpg'),
+        path.join(__dirname,'pictures', 'MUFINDI TEA PLANTATION.jpg'),
+        path.join(__dirname,'pictures', 'muganza-kivu tea factory.jpg'),
+        path.join(__dirname,'pictures', 'MULINDI FACTORY COMPANY LTD.jpg'),
+        path.join(__dirname,'pictures', 'NANDI TEA ESTATES.jpg'),
+        path.join(__dirname,'pictures', 'NYABIHU TEA FACTORY.jpg'),
+        path.join(__dirname,'pictures', 'OTB.jpg'),
+        path.join(__dirname,'pictures', 'Pfunda Tea Company.jpg'),
+        path.join(__dirname,'pictures', ' RUBAYA TEA ESTATE.jpg'),
+        path.join(__dirname,'pictures', 'Rwegura Tea Plantation.jpg'),
+        path.join(__dirname,'pictures', 'SASINI.jpg'),
+        path.join(__dirname,'pictures', 'SHAGASHA TEA FACTORY.jpg'),
+        path.join(__dirname,'pictures', 'SORWATHE TEA FACTORY.jpg'),
+        path.join(__dirname,'pictures', 'SORWATHE TEA PLANTATION.jpg'),
+        path.join(__dirname,'pictures', 'Teza Tea Estate.jpg'),
+        path.join(__dirname,'pictures', 'Teza Tea Plantation.jpg')
+     ];
+
+     
+// Serve your images from the "pictures" directory
+app.use('/pictures', express.static(path.join(__dirname, 'pictures')));
+
+
+
+     // Create an API endpoint to serve image URLs
+app.get('/api/pictures', (req, res) => {
+  res.json(imageUrls);
+});
+
 
 // Error handling middleware
 app.use((err, req, res, next) => {
