@@ -8,6 +8,8 @@ const path = require('path');
 const app = express();
 const PORT = process.env.PORT || 7000;
 
+require('dotenv').config();
+
 app.get('/', (req, res) => {
   res.send('Welcome to Atlas');
 });
@@ -32,8 +34,9 @@ app.post('/email', (req, res) => {
   const transporter = nodemailer.createTransport({
     service: 'Gmail',
     auth: {
-  user: 'atlasteabrokersltd@gmail.com', // Your Gmail email address
-  pass: 'ixle unxs lhon ftid' // Use the generated app-specific password
+  user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS, // Your Gmail email address
+   // Use the generated app-specific password
 }
 
 
